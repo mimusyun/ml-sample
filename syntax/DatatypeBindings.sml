@@ -1,4 +1,8 @@
 (* Datatype bindings *)
+
+(* Syntax *)
+(* datatype t = C1 of t1 | C2 of t2 | ... | Cn of tn *)
+
 (* Adds a new type to the environment *)
 
 datatype mytype = TwoInts of int * int (* int * int -> mytype *)
