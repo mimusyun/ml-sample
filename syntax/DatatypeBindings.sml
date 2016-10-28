@@ -49,3 +49,21 @@ fun number_of_adds e =
    |  Negate e2 => number_of_adds e2 
    |  Add(e1,e2) => 1 + (number_of_adds e1) + (number_of_adds e2) 
    |  Multiply(e1,e2) => (eval e1) * (number_of_adds e2)
+
+fun max_constant e =
+  let
+      fun max_of_two (e1, e2) =
+	let
+	    val m1 = max_constant e1
+	    val m2 = max_constant e2
+	in
+	    if m1 > m2 then m1 else m2 (* Int.max(m1,m2) is also ok *)
+	end
+  in
+      case e of
+	  Constant i => i
+	| Negate e2 => max_constant e2
+	| Add(e1,e2) => max_of_two(e1, e2)
+	| Multiply(e1,e2) => max_of_two(e1, e2)
+  end
+       
