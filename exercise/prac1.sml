@@ -65,8 +65,8 @@ fun what_month (d) =
 
 (* NO.10 *)      
 fun month_range (day1, day2) =
-  let fun countup (x, y) = if x-1 = y then [] else x :: countup(x + 1, y) in
-      countup(what_month(day1), what_month(day2))
+  let fun countup (x, y) = if x-1 = y then [] else what_month(x) :: countup(x + 1, y) in
+      countup(day1, day2)
   end
 
 (* NO.11 *)
