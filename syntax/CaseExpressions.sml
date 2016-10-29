@@ -22,5 +22,7 @@ fun f (x : mytype) =
     | TwoInts(i1, i2) => i1 + i2  		      
 (*  | Pizza - Redundant causes an error  *)
 
-(* fun g (x : mytype) = case x of Pizza => 10  *)				  
+(* fun g (x : mytype) = case x of Pizza => 10  *)				
 (* Missing patterns causes warning... *)
+
+
