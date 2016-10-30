@@ -15,37 +15,43 @@ exception IllegalMove
 
 	      
 (* 1-a *)
-fun all_except_option (str : string, strs) =
-  if List.exists (fn x => same_string(x, str)) strs
-  then SOME (List.filter (fn x => x <> str) strs)
-  else NONE
+fun all_except_option (s: string, strs: string list) =
+  let
+      fun get_except_first ([]) = []
+	| get_except_first (x::xs) =
+	  if x <> s andalso not (List.exists (fn e => e = s) xs) then []
+	  else if x = s then xs
+	  else x :: get_except_first(xs)
+  in
+      case get_except_first (strs) of
+	  [] => NONE
+	| xs => SOME xs
+  end	   	   
 
 (* 1-b *)
 fun get_substitutions1 ([], _) = []
   | get_substitutions1 (x::xs, s : string) =
     let
-	fun get_except_first ([]) = [] 
-	  | get_except_first (x::xs) =
-	    if x <> s andalso not (List.exists (fn e => e = s) xs) then []
-	    else if x = s then xs
-            else x :: get_except_first(xs)
+	fun get_value (strs) =
+	  case all_except_option (s, strs) of
+	      NONE => []
+	    | SOME xs => xs 
     in
-	get_except_first(x) @ get_substitutions1 (xs, s)
+	get_value(x) @ get_substitutions1 (xs, s)
     end
 
 (* 1-c *) (* Tail Recursion *)	
 fun get_substitutions2 ([], _) = []
   | get_substitutions2 (strs, s : string) =
     let
-	fun get_except_first ([]) = [] 
-	  | get_except_first (x::xs) =
-	    if x <> s andalso not (List.exists (fn e => e = s) xs) then []
-	    else if x = s then xs
-            else x :: get_except_first(xs)									 
+	fun get_value (strs) =
+	  case all_except_option (s, strs) of
+	      NONE => []
+	    | SOME xs => xs 									 
 									  
 	fun acc_helper ([], acc) = acc
 	  | acc_helper (x::xs, acc) =
-	    acc_helper (xs, acc @ get_except_first(x))
+	    acc_helper (xs, acc @ get_value(x))
     in
 	acc_helper(strs, [])
     end
