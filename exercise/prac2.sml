@@ -15,7 +15,7 @@ exception IllegalMove
 
 	      
 (* 1-a *)
-fun all_except_option (s: string, strs: string list) =
+fun all_except_option (s: string, strs) =
   let
       fun get_except_first ([]) = []
 	| get_except_first (x::xs) =
@@ -78,13 +78,13 @@ fun card_value (card) =
     | (_, Num n) => n
 
 (* 2-c *)
-fun remove_card (cs, c: card, e) =
+fun remove_card (cs: card list, c: card, e) =
   let
-      fun get_except_first ([]) = [] 
-	  | get_except_first (x::xs) =
-	    if x <> c andalso not (List.exists (fn e => e = c) xs) then raise e
-	    else if x = c then xs
-            else x :: get_except_first(xs)
+      fun get_except_first ([]) = []
+	| get_except_first (x::xs) =
+	  if x <> c andalso not (List.exists (fn e => e = c) xs) then raise e
+	  else if x = c then xs
+	  else x :: get_except_first(xs)
   in
       get_except_first (cs)
   end
