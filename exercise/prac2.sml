@@ -13,7 +13,6 @@ datatype move = Discard of card | Draw
 exception ERROR				      
 exception IllegalMove	   
 
-	      
 (* 1-a *)     
 
 fun all_except_option (_, []) = NONE 
@@ -21,8 +20,7 @@ fun all_except_option (_, []) = NONE
     if same_string (s, x) then SOME xs
     else case all_except_option (s, xs) of
 	     NONE => NONE 
-	   | SOME xs => SOME (x::xs)
-				   
+	   | SOME xs => SOME (x::xs)			   
 
 (* 1-b *)
 fun get_substitutions1 ([], _) = [] 
@@ -72,22 +70,8 @@ fun remove_card ([], _ , e) = raise e
     else x :: remove_card(xs, c, e)
 
 (* 2-d *)
-fun all_same_color (cs) =
-  let
-      fun get_first_color ([]) = raise ERROR
-	| get_first_color (x::xs) = card_color (x)
-  in
-      case cs of
-	  []       => true
-	| x::[]    => true
-	| x::y::[] => (card_color (x) = card_color (y))
-	| x::y::ys => if (card_color (y) = get_first_color (ys)) then all_same_color(ys) else false
-  end
-
-(* 2-d *)
-fun all_same_color ([]) = true 
-  | all_same_color (x::[]) = true 
-  | all_same_color (x::y::ys) = card_color(x) = card_color(y) andalso all_same_color(y::ys) 
+fun all_same_color (x::y::ys) = card_color(x) = card_color(y) andalso all_same_color(y::ys)
+  | all_same_color (_) = true  
 
 (* 2-e *)      
 fun sum_cards (cs) =
@@ -114,4 +98,25 @@ fun score (cs, goal) =
       get_score (cs)
   end
 
-	
+(* 2-g *)
+(* GAMEEND - user chooses no move / sum of the hc is greater than the goal *)      
+(* MOVE - drawing - get a card from cs, and add it to hc / discarding - choose a card from hc to remove *)      
+
+fun officiate (cs, ms, goal) =
+  let
+
+      (* No moves, game over *)
+      (* Discard, remove c from hs and cs unchanged *)
+      (* Draw, if sum(hs) > goal => game over / else add c to hs and continue *)
+      (* No cards, game over *)
+
+      (* args : cards / heldcards / moves *)
+      fun run (_, hs, []) = score (hs, goal) 
+	| run (cs, hs, Discard(c)::mvs) = run (cs, remove_card (hs, c, IllegalMove), mvs) 
+	| run (c::cs, hs, Draw::mvs) = if sum_cards(c::hs) > goal then score (c::hs, goal)
+				       else run (cs, c::hs, mvs)
+	| run ([], hs, _) = score (hs, goal)
+				  
+  in
+      run (cs, [], ms)
+  end
