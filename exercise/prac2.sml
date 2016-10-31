@@ -14,46 +14,34 @@ exception ERROR
 exception IllegalMove	   
 
 	      
-(* 1-a *)
-fun all_except_option (s: string, strs) =
-  let
-      fun get_except_first ([]) = []
-	| get_except_first (x::xs) =
-	  if x <> s andalso not (List.exists (fn e => e = s) xs) then []
-	  else if x = s then xs
-	  else x :: get_except_first(xs)
-  in
-      case get_except_first (strs) of
-	  [] => NONE
-	| xs => SOME xs
-  end	   	   
+(* 1-a *)     
+
+fun all_except_option (_, []) = NONE 
+  | all_except_option (s, x::xs) =
+    if same_string (s, x) then SOME xs
+    else case all_except_option (s, xs) of
+	     NONE => NONE 
+	   | SOME xs => SOME (x::xs)
+				   
 
 (* 1-b *)
-fun get_substitutions1 ([], _) = []
-  | get_substitutions1 (x::xs, s : string) =
-    let
-	fun get_value (strs) =
-	  case all_except_option (s, strs) of
-	      NONE => []
-	    | SOME xs => xs 
-    in
-	get_value(x) @ get_substitutions1 (xs, s)
-    end
+fun get_substitutions1 ([], _) = [] 
+  | get_substitutions1 (xs::xss, s) =
+    case all_except_option (s, xs) of
+	NONE => get_substitutions1(xss, s)
+      | SOME lst => lst @ get_substitutions1(xss, s)
 
-(* 1-c *) (* Tail Recursion *)	
-fun get_substitutions2 ([], _) = []
-  | get_substitutions2 (strs, s : string) =
+(* 1-c *) (* Tail Recursion *)
+fun get_substitutions2 ([], _) = [] 
+  | get_substitutions2 (xs::xss, s) =
     let
-	fun get_value (strs) =
-	  case all_except_option (s, strs) of
-	      NONE => []
-	    | SOME xs => xs 									 
-									  
-	fun acc_helper ([], acc) = acc
-	  | acc_helper (x::xs, acc) =
-	    acc_helper (xs, acc @ get_value(x))
+	fun acc_helper ([], acc) = acc 
+	  | acc_helper (xs::xss, acc) =
+	    case all_except_option (s, xs) of
+		NONE => acc_helper (xss, acc)
+	      | SOME xs => acc_helper (xss, acc @ xs) 
     in
-	acc_helper(strs, [])
+	acc_helper (xs::xss, [])
     end
 
 (* 1-d *)
@@ -78,16 +66,10 @@ fun card_value (card) =
     | (_, Num n) => n
 
 (* 2-c *)
-fun remove_card (cs: card list, c: card, e) =
-  let
-      fun get_except_first ([]) = []
-	| get_except_first (x::xs) =
-	  if x <> c andalso not (List.exists (fn e => e = c) xs) then raise e
-	  else if x = c then xs
-	  else x :: get_except_first(xs)
-  in
-      get_except_first (cs)
-  end
+fun remove_card ([], _ , e) = raise e
+  | remove_card (x::xs, c : card, e) =
+    if x = c then xs
+    else x :: remove_card(xs, c, e)
 
 (* 2-d *)
 fun all_same_color (cs) =
@@ -101,6 +83,11 @@ fun all_same_color (cs) =
 	| x::y::[] => (card_color (x) = card_color (y))
 	| x::y::ys => if (card_color (y) = get_first_color (ys)) then all_same_color(ys) else false
   end
+
+(* 2-d *)
+fun all_same_color ([]) = true 
+  | all_same_color (x::[]) = true 
+  | all_same_color (x::y::ys) = card_color(x) = card_color(y) andalso all_same_color(y::ys) 
 
 (* 2-e *)      
 fun sum_cards (cs) =
@@ -127,24 +114,4 @@ fun score (cs, goal) =
       get_score (cs)
   end
 
-(* 2-g *)
-(* GAMEEND - user chooses no move / sum of the hc is greater than the goal *)      
-(* MOVE - drawing - get a card from cs, and add it to hc / discarding - choose a card from hc to remove *)      
-(*
-fun officiate (cs, ms, goal) =
-  let
-      fun run (cs, ms, goal, hs) = ???
-      (* discard -> play continues with held-cards not having and cs unchanged *)
-      fun discard (cards, c) = remove (cards, c, IllegalMove)
-
-      (* draw -> if cs empty = gameover 
-                 elif sum(held_cards)>goal = gameover 
-                 else play continues  *)
-      fun draw (cs) =
-	case cs of
-	    []   => score (held_cards) 
-	  | x::xs => if sum_cards (help_cards) > goal then score (held_cards)
-		     else run (xs,)					   
-      (* discard c = remove (held-cards, c, e) *)
-*)
 	
